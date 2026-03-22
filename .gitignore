@@ -1,0 +1,21 @@
+# MetaTrader compiled files — never commit these
+*.ex5
+*.ex4
+*.log
+*.bak
+
+# MT5 tester results
+*.tst
+*.fxt
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+*.swp
+
+# Internal notes (not for distribution)
+_roadmap_update.txt
+_notes*.txt
