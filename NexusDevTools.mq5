@@ -20,7 +20,7 @@
 //|   This lets admins test any EA without a marketplace licence.   |
 //|                                                                  |
 //| IMPORTANT — add to MT5 allowed URLs:                             |
-//|   https://api.nexustradestudio.com                               |
+//|   https://ea.nexustradestudio.com                                |
 //|   Tools → Options → Expert Advisors → Allowed URLs              |
 //+------------------------------------------------------------------+
 #property copyright "Your Name / Studio"
@@ -60,7 +60,7 @@ input bool InpShowInfos     = true;  // Show infos section
 #define MY_EA_NAME     "My EA Name"    // Shown in dashboard
 #define MY_EA_VERSION  "1.0.0"         // Shown in dashboard
 
-#define SDK_MARKETPLACE_URL  "https://api.nexustradestudio.com"
+#define SDK_MARKETPLACE_URL  "https://ea.nexustradestudio.com"
 #define SDK_TIMER_INTERVAL   30   // seconds (keep at 30 for responsive retries)
 
 //==========================================================================
