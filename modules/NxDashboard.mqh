@@ -37,9 +37,9 @@
 #define NXD_SECTION_CLR  C'90,115,150'
 
 //--- Layout
-#define NXD_W    320   // panel width
-#define NXD_MX    12   // horizontal margin
-#define NXD_LH    19   // line height
+#define NXD_W    400   // panel width
+#define NXD_MX    14   // horizontal margin
+#define NXD_LH    21   // line height
 #define NXD_SH    10   // gap above section title
 
 //+------------------------------------------------------------------+
@@ -114,7 +114,7 @@ private:
    }
 
    void Lbl(string id, string txt, int y, color clr,
-            int fs = 8, bool bold = false)
+            int fs = 9, bool bold = false)
    {
       string n = NXD_PFX + id;
       if(ObjectFind(0, n) < 0)
@@ -150,16 +150,16 @@ private:
 
    void Header(string icon, string label, color icn_clr)
    {
-      Lbl("Hdr", icon + "  NEXUS DEV TOOLS", m_cur_y, icn_clr, 10, true);
-      m_cur_y += NXD_LH + 4;
+      Lbl("Hdr", icon + "  NEXUS DEV TOOLS", m_cur_y, icn_clr, 11, true);
+      m_cur_y += NXD_LH + 6;
       Sep("HdrSep", m_cur_y);
-      m_cur_y += 6;
+      m_cur_y += 8;
    }
 
    void SectionTitle(string id, string title)
    {
       m_cur_y += NXD_SH;
-      Lbl(id + "_T", title, m_cur_y, NXD_SECTION_CLR, 7, false);
+      Lbl(id + "_T", title, m_cur_y, NXD_SECTION_CLR, 8, true);
       m_cur_y += NXD_LH;
    }
 
@@ -344,17 +344,50 @@ public:
    }
 
    //+------------------------------------------------------------------+
-   //| RenderAuthError — minimal panel before full data is available    |
+   //| RenderAuthError — minimal panel avant la connexion              |
+   //| Affiche des instructions specifiques selon le code d'erreur.    |
    //+------------------------------------------------------------------+
    void RenderAuthError(const string error_code, const string error_msg)
    {
       CleanObjects();
       m_cur_y = 8;
       Header("[X] ", "Auth Error", NXD_RED);
-      SectionTitle("AErr", "STATUT");
-      RowFull("AErr_Code", error_code,  NXD_RED);
-      RowFull("AErr_Msg",  error_msg,   NXD_ORANGE);
-      RowFull("AErr_Hint", "Check your API key and tool key settings.", NXD_SECONDARY);
+      SectionTitle("AErr", "ERREUR D'AUTHENTIFICATION");
+      RowFull("AErr_Code", error_code, NXD_RED);
+
+      if(error_code == "URL_BLOCKED")
+      {
+         // error_msg contient l'URL exacte
+         RowFull("AErr_M1", "URL bloquee par MT5.",                         NXD_ORANGE);
+         RowFull("AErr_M2", "1. Ouvrir : Outils > Options",                 NXD_PRIMARY);
+         RowFull("AErr_M3", "2. Onglet : Expert Advisors",                  NXD_PRIMARY);
+         RowFull("AErr_M4", "3. Cliquer Ajouter et coller :",               NXD_PRIMARY);
+         RowFull("AErr_M5", error_msg,                                       NXD_YELLOW);
+         RowFull("AErr_M6", "4. Redemarrer l'EA apres OK.",                 NXD_SECONDARY);
+      }
+      else if(error_code == "AUTH_REJECTED")
+      {
+         RowFull("AErr_M1", error_msg,                                        NXD_ORANGE);
+         RowFull("AErr_M2", "Verifier API_KEY : Settings > My Profile",       NXD_SECONDARY);
+         RowFull("AErr_M3", "Verifier TOOL_KEY : Dev Area > My EAs",          NXD_SECONDARY);
+      }
+      else if(error_code == "NETWORK_ERROR")
+      {
+         RowFull("AErr_M1", error_msg,                                        NXD_ORANGE);
+         RowFull("AErr_M2", "Verifier votre connexion internet.",             NXD_SECONDARY);
+         RowFull("AErr_M3", "Le serveur sera retente automatiquement.",       NXD_SECONDARY);
+      }
+      else if(error_code == "LICENCE_NOT_FOUND")
+      {
+         RowFull("AErr_M1", error_msg,                                        NXD_ORANGE);
+         RowFull("AErr_M2", "app.nexustradestudio.com > Marketplace",          NXD_BLUE);
+      }
+      else
+      {
+         RowFull("AErr_M1", error_msg,                                        NXD_ORANGE);
+         RowFull("AErr_M2", "Verifier API_KEY et TOOL_KEY.",                  NXD_SECONDARY);
+      }
+
       DrawBg(m_cur_y + 12);
       ChartRedraw(0);
    }

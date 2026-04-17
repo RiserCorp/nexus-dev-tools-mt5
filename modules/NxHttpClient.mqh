@@ -186,37 +186,38 @@ public:
    {
       if(resp.status == NX_HTTP_URL_BLOCKED)
          return NxErr("URL_BLOCKED",
-                      "MT5 has blocked the marketplace URL. Add it to Tools > Options > Expert Advisors.");
+                      "URL a autoriser dans MT5 : " + m_base_url);
 
       if(resp.status == 0)
-         return NxErr("NETWORK_ERROR", "Cannot reach the marketplace server.");
+         return NxErr("NETWORK_ERROR",
+                      "Serveur injoignable : " + m_base_url);
 
       if(resp.status == NX_HTTP_UNAUTHORIZED || resp.status == NX_HTTP_FORBIDDEN)
          return NxErr("AUTH_REJECTED",
-                      "Invalid API key or tool key. Check your settings.");
+                      "Cle API ou Tool Key invalide.");
 
       if(resp.status == NX_HTTP_NOT_FOUND)
          return NxErr("LICENCE_NOT_FOUND",
-                      "No active licence found for this account. Subscribe on the marketplace.");
+                      "Aucune licence active. Abonnez-vous sur le marketplace.");
 
       if(!resp.success)
          return NxErr("AUTH_FAILED",
-                      "Server returned HTTP " + IntegerToString(resp.status));
+                      "Serveur HTTP " + IntegerToString(resp.status));
 
       if(!ExtractBool(resp.body, "success"))
-         return NxErr("AUTH_FAILED", "Server response: success=false. Body=" + resp.body);
+         return NxErr("AUTH_FAILED", "Reponse invalide : " + resp.body);
 
       // Navigate into data object to find session_token
       string token = ExtractString(resp.body, "session_token");
       if(StringLen(token) == 0)
-         return NxErr("PARSE_ERROR", "session_token not found in response.");
+         return NxErr("PARSE_ERROR", "session_token absent de la reponse.");
 
       string expires = ExtractString(resp.body, "expires_at");
 
       m_session_token = token;
-      NxLog(NX_INFO, "Session token received. Expires: " + expires);
+      NxLog(NX_INFO, "Session token recu. Expire : " + expires);
 
-      return NxOk("AUTH_OK", "Licence validated. Session active.", token);
+      return NxOk("AUTH_OK", "Licence validee. Session active.", token);
    }
 
    //+------------------------------------------------------------------+
@@ -225,22 +226,23 @@ public:
    NexusPayload ParseHeartbeatResponse(const NxHttpResponse &resp)
    {
       if(resp.status == NX_HTTP_URL_BLOCKED)
-         return NxErr("URL_BLOCKED", "MT5 blocked the marketplace URL.");
+         return NxErr("URL_BLOCKED",
+                      "URL a autoriser : " + m_base_url);
 
       if(resp.status == 0)
-         return NxWarn("HEARTBEAT_NETWORK", "Heartbeat failed — network error.");
+         return NxWarn("HEARTBEAT_NETWORK", "Heartbeat echec — erreur reseau.");
 
       if(resp.status == NX_HTTP_UNAUTHORIZED)
       {
          m_session_token = "";  // Session expired — will trigger re-auth
-         return NxErr("SESSION_EXPIRED", "Session token expired or revoked.");
+         return NxErr("SESSION_EXPIRED", "Session expiree ou revoquee.");
       }
 
       if(!resp.success)
          return NxWarn("HEARTBEAT_FAILED",
-                       "Heartbeat returned HTTP " + IntegerToString(resp.status));
+                       "Heartbeat HTTP " + IntegerToString(resp.status));
 
-      return NxOk("HEARTBEAT_OK", "Heartbeat acknowledged.");
+      return NxOk("HEARTBEAT_OK", "Heartbeat acquitte.");
    }
 };
 
