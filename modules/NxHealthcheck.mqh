@@ -74,6 +74,7 @@ public:
    //+------------------------------------------------------------------+
    bool IsDue() const
    {
+      if(MQLInfoInteger(MQL_TESTER) || MQLInfoInteger(MQL_OPTIMIZATION)) return false;
       if(m_next_heartbeat == 0) return false;
       return TimeGMT() >= m_next_heartbeat;
    }
