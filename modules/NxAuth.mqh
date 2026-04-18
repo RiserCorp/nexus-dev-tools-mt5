@@ -93,6 +93,19 @@ public:
    {
       m_authenticated = false;
 
+      // Strategy Tester / Optimizer bypass — no auth needed, no HTTP calls.
+      // The EA runs freely for backtesting without any licence check.
+      if(MQLInfoInteger(MQL_TESTER) || MQLInfoInteger(MQL_OPTIMIZATION) ||
+         MQLInfoInteger(MQL_VISUAL_MODE) || MQLInfoInteger(MQL_FRAME_MODE))
+      {
+         m_authenticated    = true;
+         m_is_admin_session = false;
+         m_last_error_code  = "";
+         m_last_error_msg   = "";
+         NxLog(NX_INFO, "Strategy Tester mode — licence auth bypassed.");
+         return NxOk("TESTER_MODE", "Running in Strategy Tester — auth disabled.");
+      }
+
       if(!m_http.IsConfigured())
          return NxErr("NOT_CONFIGURED", "HTTP client not initialised.");
 
@@ -154,6 +167,9 @@ public:
    //+------------------------------------------------------------------+
    NexusPayload TryRetry(const string &api_key, const string &tool_key)
    {
+      // No retry in tester mode
+      if(MQLInfoInteger(MQL_TESTER) || MQLInfoInteger(MQL_OPTIMIZATION))
+         return NxOk("RETRY_SKIP", "");
       if(!m_retry.ShouldAttempt())
          return NxOk("RETRY_SKIP", "");
 
@@ -179,6 +195,7 @@ public:
 
    bool   IsAuthenticated()   const { return m_authenticated; }
    bool   IsAdminSession()    const { return m_is_admin_session; }
+   bool   IsTesterMode()      const { return (bool)(MQLInfoInteger(MQL_TESTER) || MQLInfoInteger(MQL_OPTIMIZATION)); }
    string LastErrorCode()     const { return m_last_error_code; }
    string LastErrorMessage()  const { return m_last_error_msg; }
    bool   IsRetryExhausted()  const { return m_retry.IsExhausted(); }

@@ -203,18 +203,21 @@ private:
 
       color status_clr;
       string status_icon;
-      if(d.licence_status == "active")         { status_clr = NXD_GREEN;  status_icon = "[OK] "; }
-      else if(d.licence_status == "admin_test") { status_clr = NXD_VIOLET; status_icon = "[ADM]"; }
-      else if(d.licence_status == "expired")    { status_clr = NXD_RED;    status_icon = "[EXP]"; }
-      else                                      { status_clr = NXD_ORANGE; status_icon = "[!]  "; }
+      if(d.licence_status == "active")          { status_clr = NXD_GREEN;  status_icon = "[OK] "; }
+      else if(d.licence_status == "admin_test")  { status_clr = NXD_VIOLET; status_icon = "[ADM]"; }
+      else if(d.licence_status == "tester")      { status_clr = NXD_BLUE;   status_icon = "[TST]"; }
+      else if(d.licence_status == "expired")     { status_clr = NXD_RED;    status_icon = "[EXP]"; }
+      else                                       { status_clr = NXD_ORANGE; status_icon = "[!]  "; }
 
       Row("Lic_Sta",  "Statut",   status_icon + d.licence_status, status_clr);
       Row("Lic_Tool", "EA",       d.tool_name,                    NXD_PRIMARY);
       Row("Lic_Ver",  "Version",  d.tool_version,                 NXD_SECONDARY);
-      if(d.licence_status != "admin_test")
-         Row("Lic_Exp", "Expire", d.session_expires,              NXD_SECONDARY);
-      else
+      if(d.licence_status == "admin_test")
          RowFull("Lic_Adm", "Admin mode — licence checks bypassed", NXD_VIOLET);
+      else if(d.licence_status == "tester")
+         RowFull("Lic_Tst", "Strategy Tester — auth desactivee",  NXD_BLUE);
+      else
+         Row("Lic_Exp", "Expire", d.session_expires,               NXD_SECONDARY);
       EndSection();
    }
 
