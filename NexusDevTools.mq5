@@ -42,8 +42,9 @@
 //==========================================================================
 
 input group "=== Nexus Trade Marketplace ==="
-input string InpApiKey  = "";  // API Key — user copies from nexustradestudio.com
-input string InpToolKey = "";  // Tool Key — developer copies from Dev Area > Keys & SDK
+input string InpApiKey  = "";         // API Key — user copies from nexustradestudio.com
+input string InpToolKey = "";         // Tool Key — developer copies from Dev Area > Keys & SDK
+input ulong  InpMagic   = 20260421;   // Magic number — unique per EA instance (session tracking)
 
 input group "=== Dashboard ==="
 input int  InpCorner        = 0;     // Corner: 0=TopLeft 1=TopRight 2=BotLeft 3=BotRight
@@ -77,12 +78,6 @@ CNxHealthcheck *g_healthcheck = NULL;
 CNxDashboard   *g_dashboard   = NULL;
 
 //==========================================================================
-// Forward declarations
-//==========================================================================
-NxDashData BuildDashData();
-void       RefreshDashboard();
-
-//==========================================================================
 // OnInit
 // Always returns INIT_SUCCEEDED — the dashboard renders regardless of auth
 // outcome. OnTimer is a no-op while g_sdk_ready == false.
@@ -102,7 +97,9 @@ int OnInit()
    // ── Configure dashboard ──────────────────────────────────────────
    g_dashboard.Configure(InpCorner,
                          InpShowCompte, InpShowLicence,
-                         InpShowWarnings, InpShowErrors, InpShowInfos);
+                         InpShowWarnings, InpShowErrors, InpShowInfos,
+                         10, 10,
+                         MY_EA_NAME);
 
    // Uncomment if attaching to a dedicated chart (hides chart display):
    // g_dashboard.CoverChart();
@@ -113,7 +110,7 @@ int OnInit()
    g_http.Init(SDK_MARKETPLACE_URL);
 
    // ── Authenticate ─────────────────────────────────────────────────
-   NexusPayload auth_result = g_auth.Authenticate(InpApiKey, InpToolKey);
+   NexusPayload auth_result = g_auth.Authenticate(InpApiKey, InpToolKey, (int)InpMagic);
 
    if(auth_result.ok)
    {
@@ -166,7 +163,7 @@ void OnTimer()
    // ── Retry pending auth ───────────────────────────────────────────
    if(!g_sdk_ready)
    {
-      NexusPayload retry = g_auth.TryRetry(InpApiKey, InpToolKey);
+      NexusPayload retry = g_auth.TryRetry(InpApiKey, InpToolKey, (int)InpMagic);
       if(retry.ok && retry.code != "RETRY_SKIP")
       {
          // Auth succeeded on retry
@@ -189,7 +186,7 @@ void OnTimer()
       if(!hb.ok && hb.code == "SESSION_EXPIRED")
       {
          NxLog(NX_WARN, "Session expired — re-authenticating...");
-         NexusPayload reauth = g_auth.ForceReAuth(InpApiKey, InpToolKey);
+         NexusPayload reauth = g_auth.ForceReAuth(InpApiKey, InpToolKey, (int)InpMagic);
          if(reauth.ok)
          {
             g_healthcheck.OnAuthSuccess();
@@ -262,6 +259,7 @@ NxDashData BuildDashData()
 
    d.ea_version = MY_EA_VERSION;
    d.start_time = g_start_time;
+   d.magic_number = (long)InpMagic;
 
    return d;
 }
