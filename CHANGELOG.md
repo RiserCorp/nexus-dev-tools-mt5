@@ -5,6 +5,18 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) — Versioning:
 
 ---
 
+## [1.1.1] — 2026-04-21
+
+### Changed
+- Dashboard UI labels translated from French to English for international audience consistency (`MT5 ACCOUNT`, `ERRORS`, `WARNINGS`, `INFO`, `Status`, `Server`, `Started`, `Last HB`, `Next HB`, `Expires`, etc.).
+- `WalkAuthError` guidance messages translated to English (e.g. `URL blocked by MT5`, `Tools > Options > Expert Advisors`, `Check API_KEY (Settings > Profile)`, `Automatic retry in progress.`).
+- Empty log section messages now read `No recent errors` / `No recent warnings`.
+
+### Notes
+- No API changes. This is a label-only update — EAs using the SDK do not need code changes to get the new text.
+
+---
+
 ## [1.1.0] — 2026-04-21
 
 ### Added

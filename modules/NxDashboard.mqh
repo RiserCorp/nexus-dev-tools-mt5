@@ -300,10 +300,10 @@ private:
    //+------------------------------------------------------------------+
    void RenderCompte(const NxDashData &d)
    {
-      SectionTitle("Cpt", "COMPTE MT5");
+      SectionTitle("Cpt", "MT5 ACCOUNT");
 
       Row("Cpt_Login", "Login",    IntegerToString(d.acct_login),  NXV_PRIMARY);
-      Row("Cpt_Srv",   "Serveur",  d.acct_server,                   NXV_PRIMARY);
+      Row("Cpt_Srv",   "Server",   d.acct_server,                   NXV_PRIMARY);
       Row("Cpt_Bal",   "Balance",  DoubleToString(d.balance, 2),    NXV_PRIMARY);
       Row("Cpt_Equ",   "Equity",   DoubleToString(d.equity, 2),     NXV_PRIMARY);
 
@@ -341,7 +341,7 @@ private:
       else if(d.licence_status == "expired")    { st_clr = NXV_DANGER;  st_icon = "[EXP]"; }
       else                                       { st_clr = NXV_ORANGE; st_icon = "[!]  "; }
 
-      Row("Lic_Sta",  "Statut",  st_icon + d.licence_status, st_clr);
+      Row("Lic_Sta",  "Status",  st_icon + d.licence_status, st_clr);
       Row("Lic_Tool", "EA",      d.tool_name,                 NXV_PRIMARY);
       Row("Lic_Ver",  "Version", d.tool_version,              NXV_SECONDARY);
 
@@ -351,7 +351,7 @@ private:
       }
       else if(d.licence_status == "tester")
       {
-         RowFull("Lic_Tst", "Strategy Tester - auth desactivee", NXV_BLUE);
+         RowFull("Lic_Tst", "Strategy Tester - auth disabled", NXV_BLUE);
       }
       else
       {
@@ -366,25 +366,25 @@ private:
             color  exp_clr;
             if(days_left == 0)
             {
-               exp_label = "expire today";
+               exp_label = "expires today";
                exp_clr   = NXV_DANGER;
             }
             else if(days_left == 1)
             {
-               exp_label = "expire in 1 day";
+               exp_label = "expires in 1 day";
                exp_clr   = NXV_DANGER;
             }
             else if(days_left < 7)
             {
-               exp_label = "expire in " + IntegerToString(days_left) + " days";
+               exp_label = "expires in " + IntegerToString(days_left) + " days";
                exp_clr   = NXV_WARNING;
             }
             else
             {
-               exp_label = "expire in " + IntegerToString(days_left) + " days";
+               exp_label = "expires in " + IntegerToString(days_left) + " days";
                exp_clr   = NXV_SECONDARY;
             }
-            Row("Lic_Exp", "Expire", exp_label, exp_clr);
+            Row("Lic_Exp", "Expires", exp_label, exp_clr);
 
             // Countdown bar: fill = remaining / 30d * 100 (clamped).
             // Color mirrors the label (< 3d danger, < 7d warning, else safe).
@@ -402,7 +402,7 @@ private:
             string fallback = StringLen(d.session_expires) > 0
                               ? d.session_expires
                               : "unknown";
-            Row("Lic_Exp", "Expire", fallback, NXV_SECONDARY);
+            Row("Lic_Exp", "Expires", fallback, NXV_SECONDARY);
          }
       }
 
@@ -443,7 +443,7 @@ private:
 
    void RenderInfos(const NxDashData &d, const string last_hb, const string next_hb)
    {
-      SectionTitle("Inf", "INFOS");
+      SectionTitle("Inf", "INFO");
 
       MqlDateTime dt;
       TimeToStruct(d.start_time, dt);
@@ -457,12 +457,12 @@ private:
                          ? IntegerToString(d.magic_number)
                          : "--";
 
-      Row("Inf_EAV",   "EA Version",  d.ea_version,  NXV_SECONDARY);
-      Row("Inf_Mag",   "Magic",       magic_str,     NXV_SECONDARY);
-      Row("Inf_Start", "Demarrage",   start_str,      NXV_SECONDARY);
-      Row("Inf_Up",    "Uptime",      uptime_str,     NXV_SECONDARY);
-      Row("Inf_HBL",   "Dernier HB",  last_hb,        NXV_SECONDARY);
-      Row("Inf_HBN",   "Prochain HB", next_hb,        NXV_SECONDARY);
+      Row("Inf_EAV",   "EA Version", d.ea_version,  NXV_SECONDARY);
+      Row("Inf_Mag",   "Magic",      magic_str,     NXV_SECONDARY);
+      Row("Inf_Start", "Started",    start_str,     NXV_SECONDARY);
+      Row("Inf_Up",    "Uptime",     uptime_str,    NXV_SECONDARY);
+      Row("Inf_HBL",   "Last HB",    last_hb,       NXV_SECONDARY);
+      Row("Inf_HBN",   "Next HB",    next_hb,       NXV_SECONDARY);
 
       // Footer branding — no EndSection, last block before panel bottom.
       m_cur_y += 6;
@@ -486,8 +486,8 @@ private:
 
       if(m_show_compte)   RenderCompte(d);
       if(m_show_licence)  RenderLicence(d);
-      if(m_show_errors)   RenderLogSection("Err", "ERREURS",        NX_ERROR, 3, "Aucune erreur recente");
-      if(m_show_warnings) RenderLogSection("Wrn", "AVERTISSEMENTS", NX_WARN,  3, "Aucun avertissement recent");
+      if(m_show_errors)   RenderLogSection("Err", "ERRORS",   NX_ERROR, 3, "No recent errors");
+      if(m_show_warnings) RenderLogSection("Wrn", "WARNINGS", NX_WARN,  3, "No recent warnings");
       if(m_show_infos)    RenderInfos(d, last_hb, next_hb);
    }
 
@@ -497,38 +497,38 @@ private:
 
       HeaderLine("[X]", "AUTH ERROR", NXV_DANGER);
 
-      SectionTitle("AErr", "ERREUR D'AUTHENTIFICATION");
+      SectionTitle("AErr", "AUTH ERROR DETAILS");
       RowFull("AErr_Code", error_code, NXV_DANGER);
 
       if(error_code == "URL_BLOCKED")
       {
-         RowFull("AErr_M1", "URL bloquee par MT5.",                  NXV_ORANGE);
-         RowFull("AErr_M2", "1. Outils > Options > Expert Advisors", NXV_PRIMARY);
-         RowFull("AErr_M3", "2. Ajouter et coller :",                 NXV_PRIMARY);
-         RowFull("AErr_M4", error_msg,                                 NXV_WARNING);
-         RowFull("AErr_M5", "3. Redemarrer l'EA apres OK.",           NXV_SECONDARY);
+         RowFull("AErr_M1", "URL blocked by MT5.",                   NXV_ORANGE);
+         RowFull("AErr_M2", "1. Tools > Options > Expert Advisors",  NXV_PRIMARY);
+         RowFull("AErr_M3", "2. Add and paste:",                     NXV_PRIMARY);
+         RowFull("AErr_M4", error_msg,                                NXV_WARNING);
+         RowFull("AErr_M5", "3. Restart the EA after OK.",           NXV_SECONDARY);
       }
       else if(error_code == "AUTH_REJECTED")
       {
-         RowFull("AErr_M1", error_msg,                                 NXV_ORANGE);
-         RowFull("AErr_M2", "Verifier API_KEY (Settings > Profile)",  NXV_SECONDARY);
-         RowFull("AErr_M3", "Verifier TOOL_KEY (Dev Area > Keys)",    NXV_SECONDARY);
+         RowFull("AErr_M1", error_msg,                                NXV_ORANGE);
+         RowFull("AErr_M2", "Check API_KEY (Settings > Profile)",    NXV_SECONDARY);
+         RowFull("AErr_M3", "Check TOOL_KEY (Dev Area > Keys)",      NXV_SECONDARY);
       }
       else if(error_code == "NETWORK_ERROR")
       {
-         RowFull("AErr_M1", error_msg,                                 NXV_ORANGE);
-         RowFull("AErr_M2", "Verifier la connexion internet.",        NXV_SECONDARY);
-         RowFull("AErr_M3", "Retry automatique en cours.",            NXV_SECONDARY);
+         RowFull("AErr_M1", error_msg,                                NXV_ORANGE);
+         RowFull("AErr_M2", "Check internet connection.",            NXV_SECONDARY);
+         RowFull("AErr_M3", "Automatic retry in progress.",          NXV_SECONDARY);
       }
       else if(error_code == "LICENCE_NOT_FOUND")
       {
-         RowFull("AErr_M1", error_msg,                                 NXV_ORANGE);
-         RowFull("AErr_M2", "nexustradestudio.com > Marketplace",     NXV_BLUE);
+         RowFull("AErr_M1", error_msg,                                NXV_ORANGE);
+         RowFull("AErr_M2", "nexustradestudio.com > Marketplace",    NXV_BLUE);
       }
       else
       {
-         RowFull("AErr_M1", error_msg,                                 NXV_ORANGE);
-         RowFull("AErr_M2", "Verifier API_KEY et TOOL_KEY.",          NXV_SECONDARY);
+         RowFull("AErr_M1", error_msg,                                NXV_ORANGE);
+         RowFull("AErr_M2", "Check API_KEY and TOOL_KEY.",           NXV_SECONDARY);
       }
 
       EndSection();
@@ -540,7 +540,7 @@ private:
 
       HeaderLine("[...]", "CONNECTING", NXV_BLUE);
 
-      SectionTitle("Conn", "STATUT");
+      SectionTitle("Conn", "STATUS");
       RowFull("Conn_L1", "Contacting marketplace server...", NXV_BLUE);
       RowMeta("Conn_L2", "This may take a few seconds");
    }
