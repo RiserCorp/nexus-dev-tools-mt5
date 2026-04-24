@@ -1,0 +1,46 @@
+# Version check — guards against unbumped `#property version` on `.mq5` files.
+#
+# Runs on every PR targeting main. The script exits non-zero if any modified
+# `.mq5` keeps the same (or lower) version as the base branch, which would
+# otherwise lead to silent `.ex5` cache reuse on user terminals.
+#
+# This SDK repo currently only ships `NexusDevTools.mq5`. The default
+# SKIP_PATTERN catches Dev/Test EAs by filename — none today, but the rule is
+# kept consistent with the monitor repo so future test scaffolds are excluded
+# automatically.
+
+name: version-check
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '**.mq5'
+      - 'scripts/check-ea-version.sh'
+      - '.github/workflows/version-check.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  check-ea-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR head with full history
+        uses: actions/checkout@v4
+        with:
+          # Full history is needed so the script can `git show origin/main:file`
+          # to extract the previous `#property version`. Default fetch-depth=1
+          # would only have the merge commit and break the comparison.
+          fetch-depth: 0
+
+      - name: Fetch base branch
+        run: git fetch origin main:refs/remotes/origin/main
+
+      - name: Run version check
+        env:
+          BASE_REF: origin/main
+          SKIP_PATTERN: 'Dev\.mq5$|Test\.mq5$'
+        run: |
+          chmod +x scripts/check-ea-version.sh
+          ./scripts/check-ea-version.sh
